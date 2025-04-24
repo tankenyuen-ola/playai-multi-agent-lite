@@ -1,5 +1,7 @@
+from core.config.model_config import ModelName
 from core.prompt.gemini_prompt import ChatHistory
-from core.config.model_predefine_config import predefine_model_configs
+from core.config.model_config import GeminiModelConfig
+from core.config.model_predefine_config import predefine_gemini_configs, predefine_qwen_configs
 from google.genai.types import Content,Part
 from core.orchestra import AgentOrchestra
 
@@ -50,7 +52,10 @@ if __name__ == "__main__":
 
         print("--------------------------------")
         print("用户问:", prompt)
-        print(agent_orchestra.multi_agent_response(chat_history.to_simple_format(), prompt, predefine_model_configs))
-
+        #print(agent_orchestra.multi_agent_response_local(chat_history.to_simple_format(), prompt, predefine_gemini_configs))
+        
+        generator = agent_orchestra.multi_agent_response_with_stream_gemini(chat_history.to_simple_format(), prompt, predefine_gemini_configs)
+        for chunk in generator:
+            print(chunk, end="")
     print("--------------------------------")
 

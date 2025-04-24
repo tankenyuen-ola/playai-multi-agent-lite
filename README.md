@@ -2,6 +2,17 @@
 
 A powerful framework for building and managing multi-agent systems using Google's Generative AI (Gemini) API. This project provides utilities for token management, agent communication, and system orchestration.
 
+## New Feature
+Local Deployment of LLMs (currently supports Qwen2.5-7b-instruct, more models incoming)
+
+Method 1: Using FastAPI
+
+Switch between models via the following endpoints:
+	•	/multi-agent/gemini
+	•	/multi-agent/qwen
+
+Make sure your local models are stored in the models directory.
+
 ## Features
 
 - 🤖 Multi-agent system architecture

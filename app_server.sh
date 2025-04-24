@@ -2,20 +2,23 @@
 
 # 应用配置
 APP_NAME="playai-multi-agent"
-APP_DIR="/opt/playai-multi-agent"  # 生产环境目录
+#APP_DIR="/opt/playai-multi-agent"  # 生产环境目录
+APP_DIR="/home/kenyuen/playai-multi-agent-lite"
 USER="www-data"                    # Ubuntu 默认 web 服务用户
 GROUP="www-data"                   # Ubuntu 默认 web 服务用户组
 
 # 运行时配置
 WORKERS=4                          # worker 进程数，可以根据 CPU 核心数调整
 PORT=8000                         # 应用端口
-BIND="0.0.0.0:$PORT"             # 绑定地址
+#BIND="0.0.0.0:$PORT"             # 绑定地址
+BIND="127.0.0.1:$PORT"
 TIMEOUT=120                       # 超时时间
 
 # 目录配置
 LOG_DIR="/var/log/$APP_NAME"      # Ubuntu 标准日志目录
 PID_DIR="/var/run/$APP_NAME"      # Ubuntu 标准 PID 目录
-VENV_DIR="$APP_DIR/venv"          # 虚拟环境目录
+VENV_DIR="$APP_DIR/.venv"          # 虚拟环境目录
+#VENV_DIR="/home/banban/.local/bin/poetry"
 
 # 文件路径
 PID_FILE="$PID_DIR/$APP_NAME.pid"
@@ -80,7 +83,10 @@ start() {
     activate_venv
     
     # 启动 Gunicorn
-    sudo -u $USER gunicorn main:app \
+    #sudo -u $USER gunicorn main:app \
+    #python /home/kenyuen/playai-multi-agent-lite/.venv/bin/gunicorn main:app \
+    /home/kenyuen/playai-multi-agent-lite/.venv/bin/gunicorn main:app \
+    #gunicorn main:app \
         --name $APP_NAME \
         --workers $WORKERS \
         --bind $BIND \

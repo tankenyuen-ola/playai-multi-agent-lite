@@ -1,5 +1,6 @@
 from core.prompt.template.agent_predefine_prompt import *
 from core.llmapi.gemini_api import generate_text, generate_text_with_stream
+from core.llmapi.local_llm_api import local_model_generate_text, local_model_generate_text_stream
 from core.prompt.gemini_prompt import GeminiPrompt
 import random
 from core.config.logging_config import setup_logger
@@ -40,16 +41,52 @@ class AgentOrchestra:
                 "agent_2": model_configs["agent_2"],
                 "agent_3": model_configs["agent_3"],
                 "agent_4": model_configs["agent_4"]}
-    
 
-    def multi_agent_response_with_stream(self, chat_history, current_question, model_configs:dict):
+    # def init_agent_model_config(self, model_configs: dict):
+    #     return {
+    #         "router_agent": LocalModelConfig(**model_configs["router_agent"]),
+    #         "agent_1": LocalModelConfig(**model_configs["agent_1"]),
+    #         "agent_2": LocalModelConfig(**model_configs["agent_2"]),
+    #         "agent_3": LocalModelConfig(**model_configs["agent_3"]),
+    #         "agent_4": LocalModelConfig(**model_configs["agent_4"]),
+    #     }
+    
+    def get_router_agent_response(self, current_question, router_agent_prompt, _model_configs):
+        if _model_configs.model.startswith("gemini"):
+            prompt = GeminiPrompt(prompt=current_question, system_instruction=router_agent_prompt)
+            return generate_text(prompt, _model_configs)
+        else:
+            return local_model_generate_text(
+                prompt=current_question,
+                system_instruction=router_agent_prompt,
+                model_configs=_model_configs
+        )
+
+    def router_to_agent(self, current_question, router_agent_response, agent_prompt, model_configs):
+        for agent_key in ["agent_1", "agent_2", "agent_3", "agent_4"]:
+            if agent_key in router_agent_response:
+                agent_model_config = model_configs[agent_key]
+                print(agent_model_config)
+                if agent_model_config.model.startswith("gemini"):
+                    prompt = GeminiPrompt(prompt=current_question, system_instruction=agent_prompt[agent_key])
+                    return generate_text(prompt, agent_model_config)
+                else:
+                    return local_model_generate_text(
+                        prompt=current_question,
+                        system_instruction=agent_prompt[agent_key],
+                        model_configs=agent_model_config
+                    )
+        logger.info("没有找到合适的代理")
+        return ""
+
+    def multi_agent_response_with_stream_gemini(self, chat_history, current_question, model_configs:dict):
         router_agent_prompt = self.init_router_agent_prompt(chat_history, current_question)
         emotion_guide = random.choice(self.emotion_guide_list)
         logger.info("emotion guide index: {self.emotion_guide_list.index(emotion_guide)}")
         agent_prompt = self.init_agent_prompt(chat_history, current_question, emotion_guide)
         _model_configs = self.init_agent_model_config(model_configs)
 
-        router_agent_response = generate_text(GeminiPrompt(prompt=current_question, system_instruction=router_agent_prompt), _model_configs["router_agent"])
+        router_agent_response = self.get_router_agent_response(current_question, router_agent_prompt, _model_configs["router_agent"])
         logger.info("router_agent_response:{router_agent_response}" )
 
         if "agent_1" in router_agent_response:
@@ -69,27 +106,64 @@ class AgentOrchestra:
             logger.info("没有找到合适的代理")
 
 
-    def multi_agent_response(self, chat_history, current_question, model_configs:dict):
+    def multi_agent_response_local(self, chat_history, current_question, model_configs:dict):
         router_agent_prompt = self.init_router_agent_prompt(chat_history, current_question)
         emotion_guide = random.choice(self.emotion_guide_list)
         logger.info("emotion guide index: {self.emotion_guide_list.index(emotion_guide)}")
         agent_prompt = self.init_agent_prompt(chat_history, current_question, emotion_guide)
         _model_configs = self.init_agent_model_config(model_configs)
 
-        router_agent_response = generate_text(GeminiPrompt(prompt=current_question, system_instruction=router_agent_prompt), _model_configs["router_agent"])
+        router_agent_response = self.get_router_agent_response(current_question, router_agent_prompt, _model_configs["router_agent"])
         logger.info("router_agent_response:{router_agent_response}" )
 
-        if "agent_1" in router_agent_response: 
-            return generate_text(GeminiPrompt(prompt=current_question, system_instruction=agent_prompt["agent_1"]), _model_configs["agent_1"])
-               
-        elif "agent_2" in router_agent_response:
-            return generate_text(GeminiPrompt(prompt=current_question, system_instruction=agent_prompt["agent_2"]), _model_configs["agent_2"])
-                
-        elif "agent_3" in router_agent_response:
-            return generate_text(GeminiPrompt(prompt=current_question, system_instruction=agent_prompt["agent_3"]), _model_configs["agent_3"])
+        for agent_key in ["agent_1", "agent_2", "agent_3", "agent_4"]:
+            if agent_key in router_agent_response:
+                agent_model_config = model_configs[agent_key]
+                print(agent_model_config)
+                if agent_model_config.model.startswith("gemini"):
+                    prompt = GeminiPrompt(prompt=current_question, system_instruction=agent_prompt[agent_key])
+                    return generate_text(prompt, agent_model_config)
+                else:
+                    return local_model_generate_text(
+                        prompt=current_question,
+                        system_instruction=agent_prompt[agent_key],
+                        model_configs=agent_model_config
+                    )
+        logger.info("没有找到合适的代理")
+        return ""
         
-        elif "agent_4" in router_agent_response:
-            return generate_text(GeminiPrompt(prompt=current_question, system_instruction=agent_prompt["agent_4"]), _model_configs["agent_4"])
-        else:
-            logger.info("没有找到合适的代理")
-            return ""
+        return self.router_to_agent(current_question, router_agent_response, agent_prompt, _model_configs)
+    
+    def multi_agent_response_local_stream(self, chat_history, current_question, model_configs:dict):
+        router_agent_prompt = self.init_router_agent_prompt(chat_history, current_question)
+        emotion_guide = random.choice(self.emotion_guide_list)
+        logger.info(f"emotion guide index: {self.emotion_guide_list.index(emotion_guide)}")
+        agent_prompt = self.init_agent_prompt(chat_history, current_question, emotion_guide)
+        _model_configs = self.init_agent_model_config(model_configs)
+
+        router_agent_response = self.get_router_agent_response(current_question, router_agent_prompt, _model_configs["router_agent"])
+        logger.info(f"router_agent_response: {router_agent_response}")
+
+        for agent_key in ["agent_1", "agent_2", "agent_3", "agent_4"]:
+            if agent_key in router_agent_response:
+                agent_model_config = _model_configs[agent_key]
+                if agent_model_config.model.startswith("gemini"):
+                    prompt = GeminiPrompt(prompt=current_question, system_instruction=agent_prompt[agent_key])
+                    # For Gemini API, create an async wrapper around the synchronous generator
+                    gemini_generator = generate_text_with_stream(prompt, agent_model_config)
+                    for chunk in gemini_generator:
+                        yield chunk
+                else:
+                    # For local models, use our async generator
+                    # For local models, use our sync generator
+                    for chunk in local_model_generate_text_stream(
+                        prompt=current_question,
+                        system_instruction=agent_prompt[agent_key],
+                        model_configs=agent_model_config
+                    ):
+                        yield chunk
+                return  # Exit after finding the correct agent
+        
+        # If no agent found
+        logger.info("No suitable agent found")
+        yield ""

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from core.prompt.gemini_prompt import GeminiPrompt
-from core.config.gemini_model_config import GeminiModelConfig
+from core.config.model_config import GeminiModelConfig
 from core.config.logging_config import setup_logger
 
 # Set up logging
@@ -13,11 +13,10 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-
 def generate_text_with_stream(user_prompt: GeminiPrompt, model_config: GeminiModelConfig):
 
     client = genai.Client(
-        api_key=os.environ.get("GEMINI_API_KEY"),
+        api_key=os.environ.get("GEMINI_API_KEY")
     )
 
     model = model_config.model
@@ -61,7 +60,10 @@ def generate_text_with_stream(user_prompt: GeminiPrompt, model_config: GeminiMod
 def generate_text(user_prompt: GeminiPrompt, model_config: GeminiModelConfig):
 
     client = genai.Client(
+        # api_key=os.environ.get("GEMINI_API_KEY"),
         api_key=os.environ.get("GEMINI_API_KEY"),
+        #api_key='AIzaSy************7g',
+        http_options=types.HttpOptions(api_version='v1beta')
     )
 
     model = model_config.model
