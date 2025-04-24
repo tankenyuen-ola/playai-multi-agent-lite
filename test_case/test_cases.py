@@ -3,7 +3,7 @@ from core.prompt.gemini_prompt import ChatHistory
 from core.config.model_predefine_config import predefine_qwen_configs
 from google.genai.types import Content, Part
 from core.orchestra import AgentOrchestra
-import json
+
 
 def init_chat_history():
     """

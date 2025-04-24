@@ -26,7 +26,7 @@ class ChatHistory(BaseModel):
                 "content": text
             })
         # Convert the list to a JSON string
-        return json.dumps(simple_format)
+        return json.dumps(simple_format, ensure_ascii=False)
     
     @classmethod
     def from_simple_format(cls, simple_format):
@@ -41,7 +41,7 @@ class ChatHistory(BaseModel):
         """
         # Parse the JSON string back to a list
         if isinstance(simple_format, str):
-            simple_format = json.loads(simple_format)
+            simple_format = json.loads(simple_format, encoding='utf-8')
             
         chat_history = []
         for message in simple_format:

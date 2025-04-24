@@ -1,4 +1,4 @@
-from core.prompt.agent_predefine_prompt import *
+from core.prompt.template.agent_predefine_prompt import *
 from core.llmapi.gemini_api import generate_text, generate_text_with_stream
 from core.llmapi.local_llm_api import local_model_generate_text, local_model_generate_text_stream
 from core.prompt.gemini_prompt import GeminiPrompt

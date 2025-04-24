@@ -5,6 +5,7 @@ from core.config.model_predefine_config import predefine_gemini_configs, predefi
 from google.genai.types import Content,Part
 from core.orchestra import AgentOrchestra
 
+
 def init_chat_history():
     return ChatHistory(
         chat_history=[
