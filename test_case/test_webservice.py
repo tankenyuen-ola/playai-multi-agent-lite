@@ -3,7 +3,8 @@ import pytest
 import json
 
 # Base URL for our API
-BASE_URL = "http://0.0.0.0:18090/agents"
+BASE_URL = 'http://127.0.0.1:8000/agents'
+# BASE_URL = "http://0.0.0.0:18090/agents"
 
 def test_multi_agent_basic_question():
     """
@@ -46,7 +47,7 @@ def test_multi_agent_with_chat_history():
     }
 
     # Send POST request to the endpoint
-    response = requests.post(f"{BASE_URL}/multi-agent", json=test_data)
+    response = requests.post(f"{BASE_URL}/multi-agent/qwen", json=test_data)
 
     # Assertions to verify the response
     assert response.status_code == 200, "Expected successful response"

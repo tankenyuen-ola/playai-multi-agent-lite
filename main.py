@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-from core.routers.approuter import router
+from core.routers.approuter import router, openai_router
 from core.config.allowed_hosts import app_allowed_hosts
 
 # Create FastAPI app instance
@@ -58,6 +58,7 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=app_allowed_hosts)
 
 # Include routers
 app.include_router(router)
+app.include_router(openai_router)
 
 # Root endpoint
 @app.get("/")
