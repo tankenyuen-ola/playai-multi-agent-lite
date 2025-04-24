@@ -1,6 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from vllm import LLM, SamplingParams
-from awq import AutoAWQForCausalLM
 import os
 import json
 
@@ -42,4 +41,39 @@ def local_model_generate_text(prompt, system_instruction, model_configs):
     sampling_params = SamplingParams(temperature=model_configs.temperature, top_p=model_configs.top_p, max_tokens=model_configs.max_tokens)
     outputs = llm.generate([input_text], sampling_params)
 
+    return outputs[0].outputs[0].text
+
+def local_model_generate_text_stream(prompt, system_instruction, model_configs):
+    enable_quant = True
+    model_path = model_configs.model
+    quant_method = get_quantization_method(model_path)
+    
+    quantization = {
+        'awq': 'awq_marlin',
+        'gptq': 'gptq_marlin'
+    }.get(quant_method, 'bitsandbytes')
+    
+    if enable_quant:
+        print("Quantization enabled with method: ", quantization)
+        llm = LLM(model=model_path, quantization=quantization, gpu_memory_utilization=0.95, max_num_seqs=128, max_model_len=4096)
+    else:
+        print("no quantization")
+        llm = LLM(model=model_path, gpu_memory_utilization=0.95, max_num_seqs=128, max_model_len=4096)
+
+    # Structure the input with special tokens
+    prompt = f"<s>[INST] <<SYS>>\n{system_instruction}\n<</SYS>>\n\n{prompt} [/INST]"
+
+    input_text = llm.llm_engine.tokenizer.tokenizer.apply_chat_template(
+        [{"role": "user", "content": prompt}],
+        tokenize=False,
+        add_generation_prompt=True
+    )
+
+    sampling_params = SamplingParams(
+        temperature=model_configs.temperature, 
+        top_p=model_configs.top_p, 
+        max_tokens=model_configs.max_tokens
+    )
+
+    outputs = llm.generate([input_text], sampling_params)
     return outputs[0].outputs[0].text

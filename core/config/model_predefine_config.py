@@ -65,5 +65,3 @@ predefine_qwen_configs = {
         max_tokens=1024
     )
 }
-
-# "/data/llamafactory_model/Qwen2.5-7B-Instruct"

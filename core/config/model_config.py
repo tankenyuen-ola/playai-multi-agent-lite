@@ -18,7 +18,7 @@ class GeminiModelConfig(BaseModel):
     max_tokens: int
 
 class LocalModelConfig(BaseModel):
-    model_path: ModelPath
+    model: str
     temperature: float
     top_p: float
     max_tokens: int

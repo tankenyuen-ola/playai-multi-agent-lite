@@ -2,8 +2,7 @@
 
 # 应用配置
 APP_NAME="playai-multi-agent"
-#APP_DIR="/opt/playai-multi-agent"  # 生产环境目录
-APP_DIR="/home/kenyuen/playai-multi-agent-lite"
+APP_DIR="/opt/playai-multi-agent"  # 生产环境目录
 USER="www-data"                    # Ubuntu 默认 web 服务用户
 GROUP="www-data"                   # Ubuntu 默认 web 服务用户组
 
@@ -83,9 +82,7 @@ start() {
     activate_venv
     
     # 启动 Gunicorn
-    #sudo -u $USER gunicorn main:app \
-    #python /home/kenyuen/playai-multi-agent-lite/.venv/bin/gunicorn main:app \
-    /home/kenyuen/playai-multi-agent-lite/.venv/bin/gunicorn main:app \
+    sudo -u $USER gunicorn main:app \
     #gunicorn main:app \
         --name $APP_NAME \
         --workers $WORKERS \

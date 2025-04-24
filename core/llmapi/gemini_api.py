@@ -60,9 +60,7 @@ def generate_text_with_stream(user_prompt: GeminiPrompt, model_config: GeminiMod
 def generate_text(user_prompt: GeminiPrompt, model_config: GeminiModelConfig):
 
     client = genai.Client(
-        # api_key=os.environ.get("GEMINI_API_KEY"),
         api_key=os.environ.get("GEMINI_API_KEY"),
-        #api_key='AIzaSy************7g',
         http_options=types.HttpOptions(api_version='v1beta')
     )
 
