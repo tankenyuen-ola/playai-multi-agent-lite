@@ -51,7 +51,10 @@ if __name__ == "__main__":
 
         print("--------------------------------")
         print("用户问:", prompt)
-        print(agent_orchestra.multi_agent_response(chat_history.to_simple_format(), prompt, predefine_gemini_configs))
-
+        #print(agent_orchestra.multi_agent_response_local(chat_history.to_simple_format(), prompt, predefine_gemini_configs))
+        
+        generator = agent_orchestra.multi_agent_response_with_stream_gemini(chat_history.to_simple_format(), prompt, predefine_gemini_configs)
+        for chunk in generator:
+            print(chunk, end="")
     print("--------------------------------")
 

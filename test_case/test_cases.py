@@ -1,7 +1,6 @@
 from core.config.model_config import ModelName
 from core.prompt.gemini_prompt import ChatHistory
-from core.config.model_config import GeminiModelConfig
-from core.config.model_predefine_config import predefine_gemini_configs, predefine_qwen_configs
+from core.config.model_predefine_config import predefine_qwen_configs
 from google.genai.types import Content, Part
 from core.orchestra import AgentOrchestra
 import json
@@ -68,7 +67,7 @@ def interactive_chat():
         model_response = agent_orchestra.multi_agent_response(
             chat_history.to_simple_format(), 
             user_input, 
-            predefine_gemini_configs
+            predefine_qwen_configs
         )
         
         # 打印模型响应
